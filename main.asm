@@ -252,7 +252,7 @@ install_interrupt_handler:
 
    times 510-($-$$) db 0
    dw 0AA55h ; some BIOSes require this signature
- load:
+ load: ; The next sector (the stuff under this label) will be loaded to this address
  welcome db 'Welcome to asmOS!', 0x0D, 0x0A, 0
  msg_helloworld db 'Hello asmOS!', 0x0D, 0x0A, 0
  badcommand db 'Bad command entered.', 0x0D, 0x0A, 0
