@@ -263,8 +263,15 @@ install_interrupt_handler:
  cmd_hi db 'hi', 0
  cmd_help db 'help', 0
  cmd_exit db 'exit', 0
- msg_help db 'asmOS: Commands: hi, help, exit', 0x0D, 0x0A, 0
+ cmd_logo db 'logo', 0
+ msg_help db 'asmOS: Commands: hi, help, exit, logo', 0x0D, 0x0A, 0
  msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
+ logo:
+    db "         _____         ", 0x0D, 0x0A
+    db "   /\   /      \      /", 0x0D, 0x0A
+    db "  /  \  \____  |\    /|", 0x0D, 0x0A
+    db " /====\      \ | \  / |", 0x0D, 0x0A
+    db "/      \_____/ |  \/  |", 0x0D, 0x0A,0
  buffer times 64 db 0
 
 more_commands:
@@ -272,6 +279,10 @@ more_commands:
  mov di, cmd_exit
  call strcmp
  jc .exit
+ mov si, buffer
+ mov di, cmd_logo
+ call strcmp
+ jc .logo
  mov byte [EXTENDED_COM], 0
  ret
 .exit:
@@ -286,4 +297,8 @@ more_commands:
  int 0x15
  cli
  hlt
+ ret
+.logo:
+ mov si, logo
+ call print_string
  ret
