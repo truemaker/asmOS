@@ -267,11 +267,11 @@ install_interrupt_handler:
  msg_help db 'asmOS: Commands: hi, help, exit, logo', 0x0D, 0x0A, 0
  msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
  logo:
-    db "         _____         ", 0x0D, 0x0A
-    db "   /\   /      \      /", 0x0D, 0x0A
-    db "  /  \  \____  |\    /|", 0x0D, 0x0A
-    db " /====\      \ | \  / |", 0x0D, 0x0A
-    db "/      \_____/ |  \/  |", 0x0D, 0x0A,0
+    db "         _____           ____  ____", 0x0D, 0x0A
+    db "   /\   /      \      / |    |/    ", 0x0D, 0x0A
+    db "  /  \  \____  |\    /| |    |\___ ", 0x0D, 0x0A
+    db " /====\      \ | \  / | |    |    \", 0x0D, 0x0A
+    db "/      \_____/ |  \/  | |____|____/", 0x0D, 0x0A,0
  buffer times 64 db 0
 
 more_commands:
