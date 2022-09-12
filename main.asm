@@ -28,6 +28,11 @@ sti
    call install_interrupt_handler
    mov ah, 0
    int 0x80
+   call clear_screen
+   mov si, msg_welcome
+   call print_string
+   mov si, logo
+   call print_string
    call mainloop
  clear_screen:
    mov ah, 0
@@ -266,8 +271,10 @@ install_interrupt_handler:
  cmd_logo db 'logo', 0
  cmd_reboot db 'reboot', 0
  cmd_dvga db 'dvga', 0
+ cmd_clear db 'clear', 0
  msg_help db 'asmOS: Commands: hi, help, exit, logo, reboot, dvga', 0x0D, 0x0A, 0
  msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
+ msg_welcome db "Welcome to", 0x0D, 0x0A, 0
  logo:
     db "         _____           ____  ____", 0x0D, 0x0A
     db "   /\   /      \      / |    |/    ", 0x0D, 0x0A
@@ -293,6 +300,10 @@ more_commands:
  mov di, cmd_dvga
  call strcmp
  jc .dvga
+ mov si, buffer
+ mov di, cmd_clear
+ call strcmp
+ jc .clear
  mov byte [EXTENDED_COM], 0
  ret
 .exit:
@@ -321,4 +332,7 @@ more_commands:
  mov ax, 0x0f01
  mov [es:0], ax
  pop es
+ ret
+.clear:
+ call clear_screen
  ret
