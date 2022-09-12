@@ -36,7 +36,7 @@ sti
     ret
  load_next_sector:
       mov bx, load
-      mov dh, 1
+      mov dh, 2
       mov ah, 0x02
       mov al, dh 
       mov ch, 0x00
@@ -251,7 +251,7 @@ install_interrupt_handler:
     ret
 
    times 510-($-$$) db 0
-   dw 0AA55h ; some BIOSes require this signature
+   dw 0AA55h ; MBR Signature
  load: ; The next sector (the stuff under this label) will be loaded to this address
  welcome db 'Welcome to asmOS!', 0x0D, 0x0A, 0
  msg_helloworld db 'Hello asmOS!', 0x0D, 0x0A, 0
@@ -264,7 +264,9 @@ install_interrupt_handler:
  cmd_help db 'help', 0
  cmd_exit db 'exit', 0
  cmd_logo db 'logo', 0
- msg_help db 'asmOS: Commands: hi, help, exit, logo', 0x0D, 0x0A, 0
+ cmd_reboot db 'reboot', 0
+ cmd_dvga db 'dvga', 0
+ msg_help db 'asmOS: Commands: hi, help, exit, logo, reboot, dvga', 0x0D, 0x0A, 0
  msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
  logo:
     db "         _____           ____  ____", 0x0D, 0x0A
@@ -283,6 +285,14 @@ more_commands:
  mov di, cmd_logo
  call strcmp
  jc .logo
+ mov si, buffer
+ mov di, cmd_reboot
+ call strcmp
+ jc .reboot
+ mov si, buffer
+ mov di, cmd_dvga
+ call strcmp
+ jc .dvga
  mov byte [EXTENDED_COM], 0
  ret
 .exit:
@@ -301,4 +311,14 @@ more_commands:
 .logo:
  mov si, logo
  call print_string
+ ret
+.reboot:
+ jmp 0FFFFh:0 ; Go to the beginning of BIOS
+.dvga:
+ push es
+ mov ax, 0xb800
+ mov es, ax
+ mov ax, 0x0f01
+ mov [es:0], ax
+ pop es
  ret
