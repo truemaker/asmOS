@@ -272,7 +272,7 @@ install_interrupt_handler:
  cmd_reboot db 'reboot', 0
  cmd_dvga db 'dvga', 0
  cmd_clear db 'clear', 0
- msg_help db 'asmOS: Commands: hi, help, exit, logo, reboot, dvga', 0x0D, 0x0A, 0
+ msg_help db 'asmOS: Commands: hi, help, exit, logo, reboot, dvga, clear', 0x0D, 0x0A, 0
  msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
  msg_welcome db "Welcome to", 0x0D, 0x0A, 0
  logo:
