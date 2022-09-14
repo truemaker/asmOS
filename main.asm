@@ -11,94 +11,94 @@ mov ss, ax     ; setup stack
 mov bp, 0x7c00
 mov sp, bp
 sti
-   call clear_screen
-   mov si, msgLoad
-   call print_string
-   call load_next_sector
-   mov si, ENDL
-   call print_string
-   mov si, success
-   call print_string
-   mov byte al, [BOOT_DISK]
-   call print_hex_byte
-   mov si, ENDL
-   call print_string
-   mov si, welcome
-   call print_string
-   call install_interrupt_handler
-   mov ah, 0
-   int 0x80
-   call clear_screen
-   mov si, msg_welcome
-   call print_string
-   mov si, logo
-   call print_string
-   call mainloop
- clear_screen:
-   mov ah, 0
-    mov al, 0x3
-    int 0x10
-    ret
- load_next_sector:
-      mov bx, load
-      mov dh, 2
-      mov ah, 0x02
-      mov al, dh 
-      mov ch, 0x00
-      mov dh, 0x00
-      mov cl, 0x02
-      mov dl, [BOOT_DISK]
-      int 0x13
-      jnc .load_next_sector_done
-      mov si, failed
-      call print_string
-      cli
-      hlt
-  .load_next_sector_done:
-      ret
- mainloop:
-   mov byte [EXTENDED_COM], 1
-   mov si, prompt
-   call print_string
- 
-   mov di, buffer
-   call get_string
- 
-   mov si, buffer
-   cmp byte [si], 0  ; blank line?
-   je mainloop       ; yes, ignore it
- 
-   mov si, buffer
-   mov di, cmd_hi  ; "hi" command
-   call strcmp
-   jc .helloworld
- 
-   mov si, buffer
-   mov di, cmd_help  ; "help" command
-   call strcmp
-   jc .help
 
-   call more_commands
-   cmp byte [EXTENDED_COM], 1
-   je mainloop
-   mov si,badcommand
-   call print_string 
-   jmp mainloop  
- 
- .helloworld:
-   mov si, msg_helloworld
-   call print_string
- 
-   jmp mainloop
- 
- .help:
-   mov si, msg_help
-   call print_string
- 
-   jmp mainloop
- 
- BOOT_DISK: db 0
- EXTENDED_COM: db 0
+  call clear_screen
+  mov si, msgLoad
+  call print_string
+  call load_next_sector
+  mov si, ENDL
+  call print_string
+  mov si, success
+  call print_string
+  mov byte al, [BOOT_DISK]
+  call print_hex_byte
+  mov si, ENDL
+  call print_string
+  mov si, welcome
+  call print_string
+  call install_interrupt_handler
+  mov ah, 0
+  int 0x80
+  call clear_screen
+  mov si, msg_welcome
+  call print_string
+  mov si, logo
+  call print_string
+  call mainloop
+clear_screen:
+  mov ah, 0
+  mov al, 0x3
+  int 0x10
+  ret
+load_next_sector:
+     mov bx, load
+     mov dh, 2
+     mov ah, 0x02
+     mov al, dh 
+     mov ch, 0x00
+     mov dh, 0x00
+     mov cl, 0x02
+     mov dl, [BOOT_DISK]
+     int 0x13
+     jnc .load_next_sector_done
+     mov si, failed
+     call print_string
+     cli
+     hlt
+ .load_next_sector_done:
+     ret
+mainloop:
+  mov byte [EXTENDED_COM], 1
+  mov si, prompt
+  call print_string
+
+  mov di, buffer
+  call get_string
+
+  mov si, buffer
+  cmp byte [si], 0  ; blank line?
+  je mainloop       ; yes, ignore it
+
+  mov si, buffer
+  mov di, cmd_hi  ; "hi" command
+  call strcmp
+  jc .helloworld
+
+  mov si, buffer
+  mov di, cmd_help  ; "help" command
+  call strcmp
+  jc .help
+  call more_commands
+  cmp byte [EXTENDED_COM], 1
+  je mainloop
+  mov si,badcommand
+  call print_string 
+  jmp mainloop  
+
+.helloworld:
+  mov si, msg_helloworld
+  call print_string
+
+  jmp mainloop
+
+.help:
+  mov si, msg_help
+  call print_string
+
+  jmp mainloop
+
+BOOT_DISK: db 0
+EXTENDED_COM: db 0
 failed: db "failed to read sector", 0
 success: db "loaded next sector from disk ", 0
 msgLoad: db "loading...", 0
