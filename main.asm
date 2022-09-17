@@ -11,7 +11,7 @@ mov ss, ax     ; setup stack
 mov bp, 0x7c00
 mov sp, bp
 sti
-
+start:
   call clear_screen
   mov si, msgLoad
   call print_string
@@ -20,15 +20,14 @@ sti
   call print_string
   mov si, success
   call print_string
+  call remap_pic
+  call install_interrupt_handler
   mov byte al, [BOOT_DISK]
   call print_hex_byte
   mov si, ENDL
   call print_string
   mov si, welcome
   call print_string
-  call install_interrupt_handler
-  mov ah, 0
-  int 0x80
   call clear_screen
   mov si, msg_welcome
   call print_string
@@ -251,6 +250,15 @@ install_interrupt_handler:
   mov dword [es:bx], inthandler
   add bx, 2
   mov [es:bx], cs
+.timer_handler:
+  mov ax,0x08
+  mov bx,4
+  mul bx
+  mov bx, ax
+  mov dword [es:bx], timer_irq
+  add bx, 2
+  mov [es:bx], cs
+.keyboard_handler:
   popa
   sti
   ret
@@ -275,6 +283,7 @@ cmd_clear db 'clear', 0
 msg_help db 'asmOS: Commands: hi, help, exit, logo, reboot, dvga, clear', 0x0D, 0x0A, 0
 msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
 msg_welcome db "Welcome to", 0x0D, 0x0A, 0
+msg_timer db "Timer tick!", 0x0D, 0x0A, 0
 logo:
    db "         _____           ____  ____", 0x0D, 0x0A
    db "   /\   /      \      / |    |/    ", 0x0D, 0x0A
@@ -282,6 +291,39 @@ logo:
    db " /====\      \ | \  / | |    |    \", 0x0D, 0x0A
    db "/      \_____/ |  \/  | |____|____/", 0x0D, 0x0A,0
 buffer times 64 db 0
+
+pic1_mask: db 0
+pic2_mask: db 0
+
+%macro outb 2
+  mov al, %2
+  out %1, al
+%endmacro
+
+remap_pic:
+  in al, 0x21
+  mov [pic1_mask], al
+  in al, 0xA1
+  mov [pic2_mask], al
+  outb 0x20, 0x11
+  outb 0xA0, 0x11
+  outb 0x21, 0x8
+  outb 0xA1, 0x70
+  outb 0x21, 0x04
+  outb 0xA1, 0x02
+  outb 0x21, 0x01
+  outb 0xA1, 0x01
+  outb 0x21, [pic1_mask]
+  outb 0xA1, [pic2_mask]
+  ret
+
+timer_irq:
+  cli
+  call timer_handler
+  iret
+timer_handler:
+  outb 0x20, 0x20
+  ret
 
 more_commands:
   mov si, buffer
