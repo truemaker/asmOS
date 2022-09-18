@@ -20,18 +20,15 @@ start:
   call print_string
   mov si, success
   call print_string
+
+  cli
   call remap_pic
   call install_interrupt_handler
-  mov byte al, [BOOT_DISK]
-  call print_hex_byte
-  mov si, ENDL
-  call print_string
-  mov si, welcome
-  call print_string
+  sti
+
+shell:
   call clear_screen
   mov si, msg_welcome
-  call print_string
-  mov si, logo
   call print_string
   call mainloop
 clear_screen:
@@ -99,7 +96,7 @@ mainloop:
 BOOT_DISK: db 0
 EXTENDED_COM: db 0
 failed: db "failed to read sector", 0
-success: db "loaded next sector from disk ", 0
+success: db "loaded next sector from disk", 0xD, 0xA, 0
 msgLoad: db "loading...", 0
 
 ; ================
@@ -241,7 +238,6 @@ inthandler:
   iret
 
 install_interrupt_handler:
-  cli
   pusha
   mov ax,0x80
   mov bx,4
@@ -260,7 +256,6 @@ install_interrupt_handler:
   mov [es:bx], cs
 .keyboard_handler:
   popa
-  sti
   ret
 
 times 510-($-$$) db 0
@@ -282,8 +277,8 @@ cmd_dvga db 'dvga', 0
 cmd_clear db 'clear', 0
 msg_help db 'asmOS: Commands: hi, help, exit, logo, reboot, dvga, clear', 0x0D, 0x0A, 0
 msg_shutdown db 'Shutting down asmOS...', 0x0D, 0x0A, 0
-msg_welcome db "Welcome to", 0x0D, 0x0A, 0
 msg_timer db "Timer tick!", 0x0D, 0x0A, 0
+msg_welcome db "Welcome to", 0x0D, 0x0A
 logo:
    db "         _____           ____  ____", 0x0D, 0x0A
    db "   /\   /      \      / |    |/    ", 0x0D, 0x0A
@@ -318,12 +313,11 @@ remap_pic:
   ret
 
 timer_irq:
-  cli
-  call timer_handler
-  iret
-timer_handler:
-  outb 0x20, 0x20
-  ret
+  cli ; block interrupts so we dont get interrupted
+  pusha ; store regs
+  outb 0x20, 0x20 ; tell the pic that the interrupt is done
+  popa
+  iret ; return from interrupt
 
 more_commands:
   mov si, buffer
