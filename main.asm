@@ -30,6 +30,8 @@ shell:
   call clear_screen
   mov si, msg_welcome
   call print_string
+  mov si, msg_cl_start
+  call print_string
   call mainloop
 clear_screen:
   mov ah, 0
@@ -285,6 +287,8 @@ logo:
    db "  /  \  \____  |\    /| |    |\___ ", 0x0D, 0x0A
    db " /====\      \ | \  / | |    |    \", 0x0D, 0x0A
    db "/      \_____/ |  \/  | |____|____/", 0x0D, 0x0A, 0
+msg_cl_start:
+   db "Type 'help' for help.", 0x0D, 0x0A, 0
 buffer times 64 db 0
 
 pic1_mask: db 0
