@@ -1,7 +1,5 @@
-org 0x7c00
+org 0x600
 bits 16
-
-mov [BOOT_DISK], dl
 
 cli
 mov ax, 0  ; set up segments
@@ -11,7 +9,15 @@ mov ss, ax     ; setup stack
 mov bp, 0x7c00
 mov sp, bp
 sti
+
+.cpy:
+    mov cx, 0x0100
+    mov si, 0x7C00
+    mov di, 0x0600
+    rep movsw
+jmp 0:start
 start:
+  mov [BOOT_DISK], dl
   call clear_screen
   mov si, msgLoad
   call print_string
@@ -318,9 +324,11 @@ remap_pic:
 
 timer_irq:
   cli ; block interrupts so we dont get interrupted
-  pusha ; store regs
+  pushad ; store regs
+  pushfd
   outb 0x20, 0x20 ; tell the pic that the interrupt is done
-  popa
+  popfd
+  popad
   iret ; return from interrupt
 
 more_commands:
